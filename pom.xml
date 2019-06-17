@@ -10,6 +10,17 @@
   <name>unwrap</name>
   <url>https://github.com/artus/unwrap</url>
 
+  <scm>
+    <url>https://github.com/artus/Unwrap.git</url>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>mit</name>
+      <url>https://opensource.org/licenses/MIT</url>
+    </license>
+  </licenses>
+
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

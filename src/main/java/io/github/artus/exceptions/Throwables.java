@@ -67,11 +67,11 @@ public class Throwables
      * Returns an empty Optional if the the level exceeds the real amount of levels in the cause stack.
      *
      * @param throwable
-     * @param level
+     * @param depth
      * @return
      */
-    public static Optional<Throwable> getCauseAtLevel(Throwable throwable, int level) {
+    public static Optional<Throwable> getCauseAtLevel(Throwable throwable, int depth) {
         List<Throwable> causes = getCauses(throwable);
-        return causes.size() < level ? Optional.empty() : Optional.of(causes.get(level));
+        return causes.size() <= depth ? Optional.empty() : Optional.of(causes.get(depth));
     }
 }

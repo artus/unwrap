@@ -2,7 +2,6 @@ package io.github.artus;
 
 import io.github.artus.exceptions.Throwables;
 import org.junit.jupiter.api.Test;
-import org.omg.SendingContext.RunTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,12 +86,18 @@ public class ThrowablesTest {
     }
 
     @Test
-    void getCauseAtLevel_returns_cause_at_supplied_level_wrapped_in_Optional() {
+    void getCauseAtLevel_returns_cause_at_supplied_depth_wrapped_in_Optional() {
         Throwable throwable = generateThrowableStack(5);
         Throwable cause = getRootCause(throwable);
         Optional<Throwable> causeAtLevel = getCauseAtLevel(throwable, 3);
 
         assertTrue(causeAtLevel.isPresent());
         assertEquals(cause, causeAtLevel.get());
+    }
+
+    @Test
+    void getCauseAtLevel_returns_empty_Optional_if_depth_is_deeper_than_actual_depth() {
+        Throwable throwable = generateThrowableStack(5);
+        assertFalse(getCauseAtLevel(throwable, 4).isPresent());
     }
 }
