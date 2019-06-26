@@ -17,7 +17,8 @@
   <licenses>
     <license>
       <name>mit</name>
-      <url>https://opensource.org/licenses/MIT</url>
+      <url>https://github.com/artus/Unwrap/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
     </license>
   </licenses>
 

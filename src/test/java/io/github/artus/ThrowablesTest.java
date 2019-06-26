@@ -3,9 +3,11 @@ package io.github.artus;
 import io.github.artus.exceptions.Throwables;
 import org.junit.jupiter.api.Test;
 
+import javax.management.relation.RelationNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 import static io.github.artus.exceptions.Throwables.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,6 +70,7 @@ public class ThrowablesTest {
         Throwable runtimeException = getRootCause(throwable).initCause(new RuntimeException());
 
         assertFalse(hasCause(throwable, new RuntimeException()));
+        assertTrue(hasCause(throwable, runtimeException));
     }
 
     @Test
@@ -99,5 +102,71 @@ public class ThrowablesTest {
     void getCauseAtLevel_returns_empty_Optional_if_depth_is_deeper_than_actual_depth() {
         Throwable throwable = generateThrowableStack(5);
         assertFalse(getCauseAtLevel(throwable, 4).isPresent());
+    }
+
+    @Test
+    void getFirstCause_returns_the_first_cause_of_supplied_type() {
+        Throwable throwable = new Throwable();
+        RuntimeException firstCause = new RuntimeException();
+        RuntimeException secondCause = new RuntimeException();
+        firstCause.initCause(secondCause);
+        throwable.initCause(firstCause);
+
+        Optional<RuntimeException> runtimeException = Throwables.getCause(throwable, RuntimeException.class);
+
+        assertTrue(runtimeException.isPresent());
+        assertEquals(firstCause, runtimeException.get());
+    }
+
+    @Test
+    void getFirstCause_returns_empty_Optional_if_no_cause_of_supplied_type_was_found() {
+        Throwable throwable = new Throwable();
+        RuntimeException firstCause = new RuntimeException();
+        RuntimeException secondCause = new RuntimeException();
+        firstCause.initCause(secondCause);
+        throwable.initCause(firstCause);
+
+        Optional<StackOverflowError> stackOverflowError = Throwables.getCause(throwable, StackOverflowError.class);
+
+        assertFalse(stackOverflowError.isPresent());
+    }
+
+    @Test
+    void getFirstCause_returns_empty_Optional_if_no_cause_if_present() {
+        Optional absentThrowable = Throwables.getCause(new Throwable(), RuntimeException.class);
+        assertFalse(absentThrowable.isPresent());
+    }
+
+    @Test
+    void getLastCause_returns_the_last_cause_of_supplied_type() {
+        Throwable throwable = new Throwable();
+        RuntimeException firstCause = new RuntimeException();
+        RuntimeException secondCause = new RuntimeException();
+        firstCause.initCause(secondCause);
+        throwable.initCause(firstCause);
+
+        Optional<RuntimeException> runtimeException = Throwables.getLastCauseOfType(throwable, RuntimeException.class);
+
+        assertTrue(runtimeException.isPresent());
+        assertEquals(secondCause, runtimeException.get());
+    }
+
+    @Test
+    void getLastCause_returns_empty_Optional_if_no_cause_of_supplied_type_was_found() {
+        Throwable throwable = new Throwable();
+        RuntimeException firstCause = new RuntimeException();
+        RuntimeException secondCause = new RuntimeException();
+        firstCause.initCause(secondCause);
+        throwable.initCause(firstCause);
+
+        Optional<StackOverflowError> stackOverflowError = Throwables.getLastCauseOfType(throwable, StackOverflowError.class);
+
+        assertFalse(stackOverflowError.isPresent());
+    }
+
+    @Test
+    void getLastCause_returns_empty_Optional_if_no_cause_if_present() {
+        Optional absentThrowable = Throwables.getLastCauseOfType(new Throwable(), RuntimeException.class);
+        assertFalse(absentThrowable.isPresent());
     }
 }

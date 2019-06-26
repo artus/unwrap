@@ -74,4 +74,55 @@ public class Throwables
         List<Throwable> causes = getCauses(throwable);
         return causes.size() <= depth ? Optional.empty() : Optional.of(causes.get(depth));
     }
+
+    /**
+     * Get the first cause that is of the supplied type. Has same behaviour as getFirstCauseOfType.
+     *
+     * @param throwable
+     * @param type
+     * @return
+     */
+    public static <T extends Throwable> Optional<T> getCause(Throwable throwable, Class<T> type) {
+        return getFirstCauseOfType(throwable, type);
+    }
+
+    /**
+     * Get the first cause that is of the supplied type. Has same behaviour as getFirstCauseOfType.
+     *
+     * @param throwable
+     * @param type
+     * @return
+     */
+    public static <T extends Throwable> Optional<T> getFirstCauseOfType(Throwable throwable, Class<T> type) {
+        Throwable cause = throwable.getCause();
+        if (cause == null) return Optional.empty();
+        return type.isInstance(cause)
+                ? Optional.of(type.cast(cause))
+                : getFirstCauseOfType(cause, type);
+    }
+
+    /**
+     * Get the last cause that is of the supplied type.
+     *
+     * @param throwable
+     * @param type
+     * @return
+     */
+    public static <T> Optional<T> getLastCauseOfType(Throwable throwable, Class<T> type) {
+        return getLastCauseOfType(throwable, type, null);
+    }
+
+    /**
+     * Get the last cause that is of the supplied type.
+     * @param throwable
+     * @param type
+     * @param lastCause
+     * @return
+     */
+    private static <T> Optional<T> getLastCauseOfType(Throwable throwable, Class<T> type, Throwable lastCause) {
+        Throwable cause = throwable.getCause();
+        if (cause == null) return lastCause == null ? Optional.empty() : Optional.of(type.cast(lastCause));
+        if (type.isInstance(cause)) lastCause = cause;
+        return getLastCauseOfType(cause, type, lastCause);
+    }
 }
