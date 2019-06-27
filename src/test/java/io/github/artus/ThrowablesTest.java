@@ -3,19 +3,15 @@ package io.github.artus;
 import io.github.artus.exceptions.Throwables;
 import org.junit.jupiter.api.Test;
 
-import javax.management.relation.RelationNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Stack;
 
 import static io.github.artus.exceptions.Throwables.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit test for simple Throwables.
- */
-public class ThrowablesTest {
+class ThrowablesTest {
 
     List<Throwable> generateThrowableList(int size) {
         List<Throwable> causes = new ArrayList<>();
@@ -119,7 +115,7 @@ public class ThrowablesTest {
     }
 
     @Test
-    void getFirstCause_returns_empty_Optional_if_no_cause_of_supplied_type_was_found() {
+    void getFirstCauseOfType_returns_empty_Optional_if_no_cause_of_supplied_type_was_found() {
         Throwable throwable = new Throwable();
         RuntimeException firstCause = new RuntimeException();
         RuntimeException secondCause = new RuntimeException();
@@ -132,7 +128,7 @@ public class ThrowablesTest {
     }
 
     @Test
-    void getFirstCause_returns_empty_Optional_if_no_cause_if_present() {
+    void getFirstCauseOfType_returns_empty_Optional_if_no_cause_if_present() {
         Optional absentThrowable = Throwables.getCause(new Throwable(), RuntimeException.class);
         assertFalse(absentThrowable.isPresent());
     }
@@ -168,5 +164,35 @@ public class ThrowablesTest {
     void getLastCause_returns_empty_Optional_if_no_cause_if_present() {
         Optional absentThrowable = Throwables.getLastCauseOfType(new Throwable(), RuntimeException.class);
         assertFalse(absentThrowable.isPresent());
+    }
+
+    @Test
+    void getCausesOfType_returns_a_list_of_all_causes_that_are_of_supplied_type() {
+        Throwable throwable = new Throwable();
+        RuntimeException firstCause = new RuntimeException();
+        RuntimeException secondCause = new RuntimeException();
+        IOException thirdCause = new IOException();
+        secondCause.initCause(thirdCause);
+        firstCause.initCause(secondCause);
+        throwable.initCause(firstCause);
+
+        List<RuntimeException> runtimeExceptions = Throwables.getCaueseOfType(throwable, RuntimeException.class);
+        assertEquals(2, runtimeExceptions.size());
+        assertTrue(runtimeExceptions.contains(firstCause));
+        assertTrue(runtimeExceptions.contains(secondCause));
+    }
+
+    @Test
+    void getCausesOfType_returns_an_empty_list_if_no_causes_of_supplied_type_are_found() {
+        Throwable throwable = new Throwable();
+        RuntimeException firstCause = new RuntimeException();
+        RuntimeException secondCause = new RuntimeException();
+        IOException thirdCause = new IOException();
+        secondCause.initCause(thirdCause);
+        firstCause.initCause(secondCause);
+        throwable.initCause(firstCause);
+
+        List<StackOverflowError> stackOverflowErrors = Throwables.getCaueseOfType(throwable, StackOverflowError.class);
+        assertEquals(0, stackOverflowErrors.size());
     }
 }
